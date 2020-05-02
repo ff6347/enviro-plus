@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Collector {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  name String
+  records Record[]
+  description String?
+}
+//
+// https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-enviro-plus
+model Record {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  // recordedAt DateTime
+  collector Collector  @relation(fields: [collectorId], references: [id])
+  collectorId  Int
+  temperature Float?
+  pressure Float?
+  humidity Float?
+  light Float?
+  reducing Float? // carbon monoxide ()
+  oxidising Float? // nitrogen dioxide ()
+  nh3 Float? // and ammonia (NH3)
+  //  PM1.0, PM2.5, and PM10. These numbers refer to the size of the particles in microns, so PM10 is particles of 10 microns and smaller, PM2.5 is particles of 2.5 microns and smaller, and PM1.0 is particles of 1 micron and smaller.
+  pm1 Float?
+  pm2_5 Float?
+  pm10 Float?
+  // MEMS microphone
+// Enviro+ has a tiny MEMS microphone that lets you record audio or detect noise levels. It's really good for monitoring levels of noise pollution, and we'll be adding support for this to our Enviro+ Python library soon.
+  noise Float?
+}

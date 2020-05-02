@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  postgres:
+    hostname: postgres
+    image: postgres:11.7
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres

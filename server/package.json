@@ -1,0 +1,156 @@
+{
+  "name": "enviro-plus-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "build": "npm -s run clean && npm -s run generate && tsc",
+    "start": "nodemon",
+    "dev": "ts-node-dev --no-notify --respawn --transpileOnly src/index.ts",
+    "lint-staged": "lint-staged",
+    "postinstall": "npm -s run generate",
+    "generate:prisma": "prisma generate",
+    "generate:nexus": "ts-node --transpile-only src/lib/schema",
+    "generate": "npm -s run generate:prisma && npm -s run generate:nexus",
+    "generate:gql-types": "graphql-codegen",
+    "codegen": "graphql-codegen --config codegen.yml"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@graphql-codegen/cli": "1.13.4",
+    "@graphql-codegen/introspection": "1.13.4",
+    "@graphql-codegen/typescript": "1.13.4",
+    "@graphql-codegen/typescript-document-nodes": "1.13.4",
+    "@graphql-codegen/typescript-resolvers": "1.13.4",
+    "@prisma/cli": "^2.0.0-beta.4",
+    "@types/express": "4.17.6",
+    "@types/jest": "25.2.1",
+    "@types/morgan": "1.9.0",
+    "@types/node": "^13.13.2",
+    "@types/ws": "^7.2.4",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
+    "cz-conventional-changelog": "3.1.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-jest": "23.8.2",
+    "jest": "^25.4.0",
+    "nodemon": "2.0.3",
+    "prettier": "2.0.5",
+    "ts-jest": "25.4.0",
+    "ts-node": "^8.9.1",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@nexus/schema": "^0.13.1",
+    "@prisma/client": "^2.0.0-beta.3",
+    "cors": "2.8.5",
+    "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "graphql-yoga": "^1.18.3",
+    "morgan": "1.10.0",
+    "nexus-prisma": "^0.12.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jest-environment-node",
+    "testPathIgnorePatterns": [
+      "node_modules/",
+      "<rootDir>/dist"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules/**/node_modules"
+    ],
+    "watch": [
+      "./src"
+    ],
+    "exec": "./node_modules/.bin/tsc -p . && node -r dotenv/config --inspect dist/index.js",
+    "ext": "ts,json",
+    "restartable": "rs",
+    "verbose": true,
+    "env": {
+      "NODE_ENV": "development",
+      "NODE_DOCKER_ENV": "0"
+    }
+  },
+  "prettier": {
+    "printWidth": 80
+  },
+  "renovate": {
+    "extends": [
+      "config:base"
+    ],
+    "packageRules": [
+      {
+        "updateTypes": [
+          "minor",
+          "patch",
+          "pin",
+          "digest"
+        ],
+        "automerge": true
+      }
+    ]
+  },
+  "eslintConfig": {
+    "ignorePatterns": [
+      "node_modules",
+      "dist",
+      "coverage"
+    ],
+    "env": {
+      "jest/globals": true
+    },
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint",
+      "jest"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint",
+      "plugin:jest/recommended"
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "args": "after-used",
+          "varsIgnorePattern": "^_",
+          "argsIgnorePattern": "^_"
+        }
+      ]
+    }
+  },
+  "lint-staged": {
+    "**/*.+(js|jsx|ts|tsx)": [
+      "eslint --fix"
+    ],
+    "**/*.+(js|jsx|json|yml|yaml|css|scss|ts|tsx|md)": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm t && npm run lint-staged"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

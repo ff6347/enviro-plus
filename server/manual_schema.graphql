@@ -1,0 +1,39 @@
+scalar DateTime
+type Query {
+  info: String!
+  collectors: [Collector!]!
+  records: [Record!]!
+}
+
+type Collector {
+  id: ID!
+  createdAt: DateTime!
+  name: String!
+  description: String
+  records: [Record!]!
+}
+
+type Record {
+  id: ID!
+  createdAt: DateTime!
+  recordedAt: DateTime!
+  collector: Collector!
+  temperature: Float
+  pressure: Float
+  humidity: Float
+  light: Float
+  reducing: Float
+  oxidising: Float
+  nh3: Float
+  pm1: Float
+  pm2_5: Float
+  pm10: Float
+  noise: Float
+}
+
+enum RecordOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+  recordedAt_ASC
+  recordedAt_DESC
+}
