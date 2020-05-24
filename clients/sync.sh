@@ -16,23 +16,23 @@ print_help() {
 }
 while getopts 'ud' flag; do
   case "${flag}" in
-    u) UP=true ;;
-    d) DOWN=true ;;
-    *) print_help
-       exit 1 ;;
+  u) UP=true ;;
+  d) DOWN=true ;;
+  *)
+    print_help
+    exit 1
+    ;;
   esac
 done
 
-
-if [[ $UP == true ]] ; then
+if [[ $UP == true ]]; then
   echo "⬆ UP"
-  rsync -auv --inplace --progress /Users/icke/Documents/environ-plus-collector/* enviro:/home/pi/enviroplus-python/collector/
+  rsync -auv --inplace --progress /Users/icke/Documents/enviro-plus/clients/* enviro:/home/pi/enviroplus-python/collector/
   exit 0
 fi
 
-
-if [[ $DOWN == true ]] ; then
+if [[ $DOWN == true ]]; then
   echo "⬇ DOWN"
-  rsync -auv --inplace --progress enviro:/home/pi/enviroplus-python/collector/ /Users/icke/Documents/environ-plus-collector
+  rsync -auv --inplace --progress enviro:/home/pi/enviro-plus-collector/python/collector/ /Users/icke/Documents/environ-plus/clients
   exit 0
 fi
