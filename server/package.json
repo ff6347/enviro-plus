@@ -7,7 +7,7 @@
     "clean": "rm -rf dist",
     "test": "jest",
     "build": "npm -s run clean && npm -s run generate && tsc",
-    "start": "nodemon",
+    "start": "npm run dev",
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly src/index.ts",
     "lint-staged": "lint-staged",
     "postinstall": "npm -s run generate",
@@ -38,7 +38,9 @@
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-jest": "23.8.2",
+    "husky": "^4.2.5",
     "jest": "^25.4.0",
+    "lint-staged": "^10.2.2",
     "nodemon": "2.0.3",
     "prettier": "2.0.5",
     "ts-jest": "25.4.0",
@@ -47,14 +49,14 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@nexus/schema": "^0.13.1",
-    "@prisma/client": "^2.0.0-beta.3",
+    "@nexus/schema": "0.13.1",
+    "@prisma/client": "2.0.0-beta.5",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "express": "4.17.1",
     "graphql-yoga": "^1.18.3",
     "morgan": "1.10.0",
-    "nexus-prisma": "^0.12.0"
+    "nexus-prisma": "^0.13.0"
   },
   "jest": {
     "preset": "ts-jest",
