@@ -147,8 +147,8 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+client/lib/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
