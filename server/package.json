@@ -106,6 +106,7 @@
   },
   "eslintConfig": {
     "ignorePatterns": [
+      "src/lib/generated",
       "node_modules",
       "dist",
       "coverage"

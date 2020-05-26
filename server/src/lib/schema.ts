@@ -1,5 +1,8 @@
 import { nexusPrismaPlugin } from "nexus-prisma";
-import { intArg, makeSchema, objectType, stringArg } from "@nexus/schema";
+import {
+  /* intArg,*/ makeSchema,
+  objectType /* stringArg*/,
+} from "@nexus/schema";
 
 const Collector = objectType({
   name: "Collector",
