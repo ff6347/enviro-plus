@@ -7,6 +7,8 @@ import sys
 import ST7735
 import requests
 import json
+import argparse
+from dotenv import load_dotenv
 
 try:
     # Transitional fix for breaking change in LTR559
@@ -25,6 +27,16 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import logging
 
+load_dotenv()  # take environment variables from .env.
+
+auth_token = os.getenv("AUTH_TOKEN")
+
+parser = argparse.ArgumentParser(description="run enviro+ and post to stadtpuls.com")
+parser.add_argument("--host", nargs="?", type=str, default="http://localhost:4000")
+
+args = parser.parse_args()
+
+host = args.host
 
 
 logging.basicConfig(
@@ -74,6 +86,19 @@ delay = 0.5  # Debounce the proximity tap
 mode = 0  # The starting mode
 last_page = 0
 light = 1
+
+sensor_ids = {
+    "temp": 5,
+    "humidity": 6,
+    "pressure": 7,
+    "light": 8,
+    "ox": 9,
+    "red": 10,
+    "nh3": 11,
+    "pm1": 12,
+    "pm25": 13,
+    "pm10": 14,
+}
 
 
 def calc_average(lst):
@@ -286,27 +311,40 @@ nh3_list = []
 pm1_list = []
 pm25_list = []
 pm10_list = []
-url = "http://localhost:3000/graphql"
 
-def postData(payload, type):
-    query = """mutation insert($payload: Payload!, $type: String!){
-    insertData(payload: $payload, type: $type) {
-    results {
-      name
-      status
-      species
-      type
-      gender
-    }
-    }
-    }"""
-    variables = {"payload": payload, "type": type}
-    print(payload, type)
-    r = requests.post(url, json={"query": query, "variables": variables})
-    print(r.status_code)
-    print(r.text)
 
-def doAveraging():
+def post_data(payload, sensor_key):
+    sensor_id = sensor_ids[sensor_key]
+    url = "{}/api/v3/sensors/{}/records".format(host, sensor_id)
+    headers = {"authorization": "Bearer {}".format(auth_token)}
+
+    r = requests.post(url, json={"measurements": [payload]}, headers=headers)
+    if r.status != 201:
+        logging.error(
+            "{}, Failed to post data to {}: {}".format(r.status_code, host, r.text)
+        )
+
+
+# def post_data(payload, type):
+#     query = """mutation insert($payload: Payload!, $type: String!){
+#     insertData(payload: $payload, type: $type) {
+#     results {
+#       name
+#       status
+#       species
+#       type
+#       gender
+#     }
+#     }
+#     }"""
+#     variables = {"payload": payload, "type": type}
+#     print(payload, type)
+#     r = requests.post(url, json={"query": query, "variables": variables})
+#     print(r.status_code)
+#     print(r.text)
+
+
+def do_averaging():
     global temp_list
     global hum_list
     global hum_list
@@ -319,48 +357,49 @@ def doAveraging():
     global pm10_list
     print("collection")
     logging.info("temp average {:10.2f}{}".format(calc_average(temp_list), "C"))
-    postData(calc_average(temp_list), "temp")
+    post_data(calc_average(temp_list), "temp")
     temp_list.clear()
 
     logging.info("hum  average {:10.2f}{}".format(calc_average(hum_list), "%"))
-    postData(calc_average(hum_list), "hum")
+    post_data(calc_average(hum_list), "humidity")
     hum_list.clear()
 
     logging.info("press  average {:10.2f}{}".format(calc_average(press_list), "hPa"))
-    postData(calc_average(press_list), "press")
+    post_data(calc_average(press_list), "pressure")
     press_list.clear()
 
     logging.info("light average {:10.2f}{}".format(calc_average(light_list), "Lux"))
-    postData(calc_average(light_list), "light")
+    post_data(calc_average(light_list), "light")
     light_list.clear()
 
     logging.info("ox average {:10.2f}{}".format(calc_average(ox_list), "kO"))
-    postData(calc_average(ox_list), "ox")
+    post_data(calc_average(ox_list), "ox")
     ox_list.clear()
 
     logging.info("red average {:10.2f}{}".format(calc_average(red_list), "kO"))
-    postData(calc_average(red_list), "red")
+    post_data(calc_average(red_list), "red")
     red_list.clear()
 
     logging.info("nh3 average {:10.2f}{}".format(calc_average(nh3_list), "kO"))
-    postData(calc_average(nh3_list), "nh3")
+    post_data(calc_average(nh3_list), "nh3")
     nh3_list.clear()
 
     logging.info("pm1 average {:10.2f}{}".format(calc_average(pm1_list), "ug/m3"))
-    postData(calc_average(pm1_list), "pm1")
+    post_data(calc_average(pm1_list), "pm1")
     pm1_list.clear()
 
     logging.info("pm 2.5 average {:10.2f}{}".format(calc_average(pm25_list), "ug/m3"))
-    postData(calc_average(pm25_list), "pm25")
+    post_data(calc_average(pm25_list), "pm25")
     pm25_list.clear()
 
     logging.info("pm10 average {:10.2f}{}".format(calc_average(pm10_list), "ug/m3"))
-    postData(calc_average(pm10_list), "pm10")
+    post_data(calc_average(pm10_list), "pm10")
     pm10_list.clear()
 
-            #do work here
+    # do work here
 
-def doCollection():
+
+def do_collecting():
     global temp_list
     global press_list
     global hum_list
@@ -393,6 +432,7 @@ def doCollection():
     pm10 = get_pm10()
     pm10_list.append(pm10[0])
 
+
 # The main loop
 try:
     # while True:
@@ -417,10 +457,10 @@ try:
     #     pm10 = get_pm10()
     #     pm10_list.append(pm10[0])
 
-    collectionSchedule = task.LoopingCall(doCollection)
-    postingSchedule = task.LoopingCall(doAveraging)
-    collectionSchedule.start(10.0) # call every 10 seconds
-    postingSchedule.start(60.0) # call every sixty seconds
+    collection_schedule = task.LoopingCall(do_collecting)
+    posting_schedule = task.LoopingCall(do_averaging)
+    collection_schedule.start(10.0)  # call every 10 seconds
+    posting_schedule.start(180.0)  # call every 180 seconds
 
     reactor.run()
 
