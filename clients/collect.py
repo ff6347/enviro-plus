@@ -355,7 +355,6 @@ def do_averaging():
     global pm1_list
     global pm25_list
     global pm10_list
-    print("collection")
     logging.info("temp average {:10.2f}{}".format(calc_average(temp_list), "C"))
     post_data(calc_average(temp_list), "temp")
     temp_list.clear()
@@ -410,7 +409,6 @@ def do_collecting():
     global pm1_list
     global pm25_list
     global pm10_list
-    print("collection")
     temp = get_temperature()
     temp_list.append(temp[0])
     press = get_pressure()
