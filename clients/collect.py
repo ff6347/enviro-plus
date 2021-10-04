@@ -319,7 +319,7 @@ def post_data(payload, sensor_key):
     headers = {"authorization": "Bearer {}".format(auth_token)}
 
     r = requests.post(url, json={"measurements": [payload]}, headers=headers)
-    if r.status != 201:
+    if r.status_code != 201:
         logging.error(
             "{}, Failed to post data to {}: {}".format(r.status_code, host, r.text)
         )
