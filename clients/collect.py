@@ -40,13 +40,13 @@ host = args.host
 
 
 logging.basicConfig(
-    format="%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s",
-    level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+        format="%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+        )
 
 logging.info(
-    """all-in-one.py - Displays readings from all of Enviro plus' sensors
+        """all-in-one.py - Displays readings from all of Enviro plus' sensors
 
 Press Ctrl+C to exit!
 
@@ -61,8 +61,8 @@ pms5003 = PMS5003()
 
 # Create ST7735 LCD display class
 st7735 = ST7735.ST7735(
-    port=0, cs=1, dc=9, backlight=12, rotation=270, spi_speed_hz=10000000
-)
+        port=0, cs=1, dc=9, backlight=12, rotation=270, spi_speed_hz=10000000
+        )
 
 # Initialize display
 st7735.begin()
@@ -88,17 +88,17 @@ last_page = 0
 light = 1
 
 sensor_ids = {
-    "temp": 5,
-    "humidity": 6,
-    "pressure": 7,
-    "light": 8,
-    "ox": 9,
-    "red": 10,
-    "nh3": 11,
-    "pm1": 12,
-    "pm25": 13,
-    "pm10": 14,
-}
+        "temp": 5,
+        "humidity": 6,
+        "pressure": 7,
+        "light": 8,
+        "ox": 9,
+        "red": 10,
+        "nh3": 11,
+        "pm1": 12,
+        "pm25": 13,
+        "pm10": 14,
+        }
 
 
 def calc_average(lst):
@@ -114,17 +114,17 @@ def calc_average(lst):
 
 # Create a values dict to store the data
 variables = [
-    "temperature",
-    "pressure",
-    "humidity",
-    "light",
-    "oxidised",
-    "reduced",
-    "nh3",
-    "pm1",
-    "pm25",
-    "pm10",
-]
+        "temperature",
+        "pressure",
+        "humidity",
+        "light",
+        "oxidised",
+        "reduced",
+        "nh3",
+        "pm1",
+        "pm25",
+        "pm10",
+        ]
 
 values = {}
 
@@ -148,10 +148,10 @@ def display_text(variable, data, unit):
     values[variable] = values[variable][1:] + [data]
     # Scale the values for the variable between 0 and 1
     colours = [
-        (v - min(values[variable]) + 1)
-        / (max(values[variable]) - min(values[variable]) + 1)
-        for v in values[variable]
-    ]
+            (v - min(values[variable]) + 1)
+            / (max(values[variable]) - min(values[variable]) + 1)
+            for v in values[variable]
+            ]
     # Format the variable name and value
     # message = "{}: {:.1f} {}".format(variable[:4], data, unit)
     # logging.info(message)
@@ -317,12 +317,22 @@ def post_data(payload, sensor_key):
     sensor_id = sensor_ids[sensor_key]
     url = "{}/api/v3/sensors/{}/records".format(host, sensor_id)
     headers = {"authorization": "Bearer {}".format(auth_token)}
+    try:
 
-    r = requests.post(url, json={"measurements": [payload]}, headers=headers)
-    if r.status_code != 201:
-        logging.error(
-            "{}, Failed to post data to {}: {}".format(r.status_code, host, r.text)
-        )
+        r = requests.post(url, json={"measurements": [payload]}, headers=headers)
+        if r.status_code != 201:
+            logging.error(
+                "{}, Failed to post data to {}: {}".format(r.status_code, host, r.text)
+            )
+        else:
+            logging.info(
+                "{}, Data for {} posted to {}".format(r.status_code, sensor_key, host)
+            )
+    except requests.exceptions.RequestException as e:
+        logging.error(e)
+        #logging.error(
+        #        "{}, Failed to post data to {}: {}".format(r.status_code, host, r.text)
+        #    )
 
 
 # def post_data(payload, type):
